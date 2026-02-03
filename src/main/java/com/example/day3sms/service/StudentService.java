@@ -1,5 +1,7 @@
 package com.example.day3sms.service;
 
+import com.example.day3sms.DTO.StudentRequestDTO;
+import com.example.day3sms.DTO.StudentResponseDTO;
 import com.example.day3sms.model.StudentModel;
 import com.example.day3sms.repository.StudentRepo;
 import org.springframework.stereotype.Service;
@@ -8,6 +10,22 @@ import java.util.List;
 
 @Service
 public class StudentService {
+
+    public StudentResponseDTO addStudent( StudentRequestDTO dto){
+        StudentModel student = new StudentModel(); // 1st object for database
+        student.setName(dto.getName());
+        student.setAge(dto.getAge());
+        student.setEmail(dto.getEmail());
+
+        StudentModel saved = repository.save(student); //2nd object for user, client, response
+
+        return new StudentResponseDTO(
+                saved.getId(),
+                saved.getName(),
+                saved.getAge(),
+                saved.getEmail()
+        );
+    }
     private final StudentRepo repository;
 
     public StudentService(StudentRepo repository) {
@@ -15,9 +33,11 @@ public class StudentService {
     }
 
     //Create
-    public StudentModel addStudent(StudentModel student){
-        return repository.save(student);
-    }
+//    public StudentModel addStudent(StudentModel student){
+//        return repository.save(student);
+//    }
+
+
 
     //Display Structure
 
