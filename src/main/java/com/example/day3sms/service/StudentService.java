@@ -55,7 +55,7 @@ public class StudentService {
 
 
     //Update Structure
-    public StudentResponseDTO updateStudent(String id , StudentModel student){
+    public StudentResponseDTO updateStudent(String id , StudentRequestDTO student){
         StudentModel existingStudent = repository.findById(id)
                 .orElseThrow(() -> new StudentNotFoundException("No Student Found"));
 
