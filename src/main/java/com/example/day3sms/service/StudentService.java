@@ -2,6 +2,7 @@ package com.example.day3sms.service;
 
 import com.example.day3sms.DTO.StudentRequestDTO;
 import com.example.day3sms.DTO.StudentResponseDTO;
+import com.example.day3sms.Exception.StudentNotFoundException;
 import com.example.day3sms.model.StudentModel;
 import com.example.day3sms.repository.StudentRepo;
 import org.springframework.stereotype.Service;
@@ -41,29 +42,49 @@ public class StudentService {
 
     //Display Structure
 
-    public List<StudentModel> getStudents(){
-        return repository.findAll();
+    public List<StudentResponseDTO> getStudents(){
+        return repository.findAll() // convert studentModel data into StudentResponseDTO
+                .stream()
+                .map(s -> new StudentResponseDTO(
+                        s.getId(),
+                        s.getName(),
+                        s.getAge(),
+                        s.getEmail()
+                )).toList();
     }
 
-    public StudentModel updateStudent(String id , StudentModel student){
+
+    //Update Structure
+    public StudentResponseDTO updateStudent(String id , StudentModel student){
         StudentModel existingStudent = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("No Student Found"));
+                .orElseThrow(() -> new StudentNotFoundException("No Student Found"));
 
         existingStudent.setName(student.getName());
         existingStudent.setAge(student.getAge());
         existingStudent.setEmail(student.getEmail());
 
-        return repository.save(existingStudent);
+        StudentModel updatedStudent = repository.save(existingStudent);
+
+        return new StudentResponseDTO(
+                updatedStudent.getId(),
+                updatedStudent.getName(),
+                updatedStudent.getAge(),
+                updatedStudent.getEmail()
+        );
     }
 
-    public StudentModel deleteStudent(String id) {
+    public StudentResponseDTO deleteStudent(String id) {
 
         StudentModel student = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Student not found with id: " + id));
+                .orElseThrow(() -> new StudentNotFoundException("Student not found with id: " + id));
 
         repository.deleteById(id);
-
-        return student;
+        return new StudentResponseDTO(
+                student.getId(),
+                student.getName(),
+                student.getAge(),
+                student.getEmail()
+        );
     }
 
 

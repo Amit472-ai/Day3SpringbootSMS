@@ -32,17 +32,17 @@ public class StudentController {
     //Display Students
 
     @GetMapping("/students")
-    public List<StudentModel> getStudents(){
+    public List<StudentResponseDTO> getStudents(){
         return service.getStudents();
     }
 
     @PutMapping("/update/{id}")
-    public StudentModel updateStudent(@PathVariable String id, @RequestBody StudentModel student){
+    public StudentResponseDTO updateStudent(@PathVariable String id, @RequestBody StudentModel student){
         return service.updateStudent(id,student);
     }
 
     @DeleteMapping("/students/{id}")
-    public StudentModel deleteStudent(@PathVariable String id) {
+    public StudentResponseDTO deleteStudent(@PathVariable String id) {
         return service.deleteStudent(id);
     }
 
