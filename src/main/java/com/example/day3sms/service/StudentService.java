@@ -72,7 +72,7 @@ public class StudentService {
                 updatedStudent.getEmail()
         );
     }
-
+    //Delete Structure
     public StudentResponseDTO deleteStudent(String id) {
 
         StudentModel student = repository.findById(id)

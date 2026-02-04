@@ -36,11 +36,13 @@ public class StudentController {
         return service.getStudents();
     }
 
+    //Update Structure
     @PutMapping("/update/{id}")
     public StudentResponseDTO updateStudent(@PathVariable String id, @RequestBody StudentRequestDTO student){
         return service.updateStudent(id,student);
     }
 
+    //Delete Structure
     @DeleteMapping("/students/{id}")
     public StudentResponseDTO deleteStudent(@PathVariable String id) {
         return service.deleteStudent(id);
