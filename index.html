@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Student Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 p-8">
+
+<!-- MAIN CARD -->
+<div class="max-w-6xl mx-auto bg-white shadow-lg rounded-lg p-6">
+    <h1 class="text-3xl font-bold text-center mb-6">Student Management System</h1>
+
+    <!-- ADD STUDENT -->
+    <div class="flex gap-3 mb-6">
+        <input id="name" placeholder="Name" class="border px-3 py-2 rounded w-1/4">
+        <input id="age" type="number" placeholder="Age" class="border px-3 py-2 rounded w-1/4">
+        <input id="email" placeholder="Email" class="border px-3 py-2 rounded w-1/4">
+        <button onclick="addStudent()" class="bg-green-600 text-white px-4 py-2 rounded">
+            Add Student
+        </button>
+    </div>
+
+    <!-- STUDENT TABLE -->
+    <table class="w-full border">
+        <thead class="bg-gray-200">
+        <tr>
+            <th class="border px-4 py-2">ID</th>
+            <th class="border px-4 py-2">Name</th>
+            <th class="border px-4 py-2">Age</th>
+            <th class="border px-4 py-2">Email</th>
+            <th class="border px-4 py-2">Action</th>
+        </tr>
+        </thead>
+        <tbody id="studentsTable" class="text-center"></tbody>
+    </table>
+</div>
+
+<!-- UPDATE MODAL -->
+<div id="editModal"
+     class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center">
+
+    <div class="bg-white w-full max-w-md rounded-lg p-6">
+        <h2 class="text-xl font-bold mb-4 text-center">Update Student</h2>
+
+        <input type="hidden" id="editId">
+
+        <input id="editName" class="w-full border px-3 py-2 rounded mb-3" placeholder="Name">
+        <input id="editAge" type="number" class="w-full border px-3 py-2 rounded mb-3" placeholder="Age">
+        <input id="editEmail" class="w-full border px-3 py-2 rounded mb-4" placeholder="Email">
+
+        <div class="flex justify-end gap-3">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 bg-gray-300 rounded">
+                Cancel
+            </button>
+            <button type="button" onclick="updateStudent()" class="px-4 py-2 bg-indigo-600 text-white rounded">
+                Update
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- SCRIPT -->
+<script>
+    const BASE_URL = "http://localhost:8080";
+
+    /* ================= LOAD STUDENTS ================= */
+    function loadStudents() {
+      fetch(`${BASE_URL}/students`)
+        .then(res => res.json())
+        .then(data => {
+          const table = document.getElementById("studentsTable");
+          table.innerHTML = "";
+
+          data.forEach(student => {
+            table.innerHTML += `
+              <tr class="hover:bg-gray-100">
+                <td class="border px-2 py-1">${student.id}</td>
+                <td class="border px-2 py-1">${student.name}</td>
+                <td class="border px-2 py-1">${student.age}</td>
+                <td class="border px-2 py-1">${student.email}</td>
+                <td class="border px-2 py-1 space-x-2">
+                  <button
+                    onclick='openEditModal(${JSON.stringify(student)})'
+                    class="bg-blue-500 text-white px-3 py-1 rounded text-sm">
+                    Edit
+                  </button>
+                  <button
+                    onclick="deleteStudent('${student.id}')"
+                    class="bg-red-500 text-white px-3 py-1 rounded text-sm">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            `;
+          });
+        });
+    }
+
+    /* ================= ADD ================= */
+    function addStudent() {
+
+  const nameInput = document.getElementById("name");
+  const ageInput = document.getElementById("age");
+  const emailInput = document.getElementById("email");
+
+  const nameValue = nameInput.value.trim();
+  const ageValue = ageInput.value.trim();
+  const emailValue = emailInput.value.trim();
+
+  if (nameValue === "" || ageValue === "" || emailValue === "") {
+    alert("All fields are required");
+    return;
+  }
+
+  const student = {
+    name: nameValue,
+    age: Number(ageValue),   // IMPORTANT
+    email: emailValue
+  };
+
+  fetch(`${BASE_URL}/add-student`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(student)
+  })
+  .then(res => {
+    if (!res.ok) throw new Error("Add failed");
+    return res.json();
+  })
+  .then(() => {
+    nameInput.value = "";
+    ageInput.value = "";
+    emailInput.value = "";
+    loadStudents();
+  })
+  .catch(err => {
+    console.error(err);
+    alert("Student add failed");
+  });
+}
+
+
+
+    /* ================= DELETE ================= */
+    function deleteStudent(id) {
+      if (!confirm("Delete this student?")) return;
+
+      fetch(`${BASE_URL}/students/${id}`, { method: "DELETE" })
+        .then(() => loadStudents());
+    }
+
+    /* ================= OPEN MODAL ================= */
+    function openEditModal(student) {
+      editId.value = student.id;
+      editName.value = student.name;
+      editAge.value = student.age;
+      editEmail.value = student.email;
+
+      editModal.classList.remove("hidden");
+      editModal.classList.add("flex");
+    }
+
+    /* ================= CLOSE MODAL ================= */
+    function closeModal() {
+      editModal.classList.add("hidden");
+      editModal.classList.remove("flex");
+    }
+
+    /* ================= UPDATE ================= */
+    function updateStudent() {
+      const id = editId.value;
+
+      const student = {
+        name: editName.value,
+        age: editAge.value,
+        email: editEmail.value
+      };
+
+      fetch(`${BASE_URL}/update/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(student)
+      })
+      .then(() => {
+        closeModal();
+        loadStudents();
+      });
+    }
+
+    /* ================= INIT ================= */
+    loadStudents();
+</script>
+
+</body>
+</html>
