@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
 public class StudentController {
     //Request - Post
@@ -41,6 +41,7 @@ public class StudentController {
     public StudentResponseDTO updateStudent(@PathVariable String id, @RequestBody StudentRequestDTO student){
         return service.updateStudent(id,student);
     }
+
 
     //Delete Structure
     @DeleteMapping("/students/{id}")
